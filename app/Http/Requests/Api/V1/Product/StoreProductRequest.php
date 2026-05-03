@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
 use Illuminate\Foundation\Http\Attributes\StopOnFirstFailure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 #[StopOnFirstFailure]
 #[FailOnUnknownFields]
@@ -29,11 +30,15 @@ class StoreProductRequest extends FormRequest
         return [
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string',
-            'slug' => 'required|string|unique:categories,slug',
+            'slug' => [
+                'required',
+                'string',
+                Rule::unique('products')->whereNull('deleted_at'),
+            ],
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
-            'price' => 'required|numeric',
-            'quantity' => 'nullable|numeric',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'nullable|numeric|min:0',
             'is_featured' => 'boolean|required',
         ];
     }

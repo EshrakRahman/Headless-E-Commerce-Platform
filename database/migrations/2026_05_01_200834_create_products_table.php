@@ -18,9 +18,10 @@ return new class extends Migration
             $table->string('slug');
             $table->string('image')->nullable();
             $table->longText('description')->nullable();
-            $table->float('price');
+            $table->decimal('price', 5, 2);
             $table->integer('quantity')->nullable();
             $table->boolean('is_featured')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

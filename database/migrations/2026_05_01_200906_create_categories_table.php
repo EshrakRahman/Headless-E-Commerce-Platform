@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug');
             $table->longText('description')->nullable();
             $table->boolean('is_active')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
