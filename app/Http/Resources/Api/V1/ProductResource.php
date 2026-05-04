@@ -22,7 +22,9 @@ class ProductResource extends JsonResource
             'price' => (float) $this->price,
             'compare_price' => (float) $this->compare_price,
             'quantity' => (int) $this->quantity,
-            'image' => $this->image ? asset('storage/products/'.$this->image) : null,
+            'image' => $this->image
+                ? (str_starts_with($this->image, 'http') ? $this->image : asset('storage/products/'.$this->image))
+                : null,
             'sizes' => $this->whenLoaded('sizes', fn () => $this->sizes->map(fn ($size) => [
                 'id' => $size->id,
                 'name' => $size->name,
@@ -30,7 +32,7 @@ class ProductResource extends JsonResource
                 'stock' => (int) $size->pivot->stock,
             ])),
             'is_featured' => $this->is_featured,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

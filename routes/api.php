@@ -21,7 +21,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::prefix('v1')->group(function () {
-    Route::get('products/by-slug/{slug:slug}', [ProductController::class, 'showBySlug']);
+    Route::get('products/by-slug/{slug}', [ProductController::class, 'showBySlug']);
     Route::apiResource('products', ProductController::class);
 
     Route::apiResource('categories', CategoryController::class);

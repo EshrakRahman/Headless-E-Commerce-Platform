@@ -25,6 +25,14 @@ class ProductController extends Controller
             $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
         }
 
+        if ($request->boolean('featured')) {
+            $query->where('is_featured', true);
+        }
+
+        if ($request->sort === 'latest') {
+            $query->orderBy('created_at', 'desc');
+        }
+
         return ProductResource::collection($query->get());
     }
 
@@ -46,9 +54,9 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
-    public function showBySlug(Product $product): ProductResource
+    public function showBySlug(string $slug): ProductResource
     {
-        $product->load(['category', 'sizes']);
+        $product = Product::where('slug', $slug)->with(['category', 'sizes'])->firstOrFail();
 
         return new ProductResource($product);
     }
