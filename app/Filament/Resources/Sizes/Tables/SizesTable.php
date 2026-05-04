@@ -15,7 +15,7 @@ class SizesTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('name'),
             ])
             ->filters([
                 //

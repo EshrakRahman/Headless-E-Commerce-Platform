@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Sizes\Schemas;
 
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -13,7 +12,7 @@ class SizeForm
         return $schema
             ->components([
                 TextInput::make('name')
-                ->required()
+                    ->required(),
             ]);
     }
 }

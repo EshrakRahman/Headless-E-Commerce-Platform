@@ -7,9 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+
 class AuthController extends Controller
 {
-
     public function register(Request $request)
     {
         $request->validate([
@@ -32,6 +32,7 @@ class AuthController extends Controller
             'token' => $token->plainTextToken,
         ], 201);
     }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -41,7 +42,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response([
                 'message' => 'These credentials do not match our records.',
             ], 401);

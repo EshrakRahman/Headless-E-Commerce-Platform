@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products\Schemas;
 use App\Models\Product;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -25,9 +26,25 @@ class ProductInfolist
                     ->columnSpanFull(),
                 TextEntry::make('price')
                     ->money(),
+                TextEntry::make('compare_price')
+                    ->money()
+                    ->placeholder('-'),
                 TextEntry::make('quantity')
                     ->numeric()
                     ->placeholder('-'),
+                RepeatableEntry::make('sizes')
+                    ->label('Sizes')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('pivot.additional_price')
+                            ->label('Additional Price')
+                            ->money(),
+                        TextEntry::make('pivot.stock')
+                            ->label('Stock')
+                            ->numeric(),
+                    ])
+                    ->columns(3)
+                    ->placeholder('No sizes'),
                 IconEntry::make('is_featured')
                     ->boolean(),
                 TextEntry::make('deleted_at')

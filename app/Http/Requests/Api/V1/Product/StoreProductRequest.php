@@ -2,29 +2,18 @@
 
 namespace App\Http\Requests\Api\V1\Product;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
 use Illuminate\Foundation\Http\Attributes\StopOnFirstFailure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 #[StopOnFirstFailure]
-#[FailOnUnknownFields]
 class StoreProductRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -38,8 +27,13 @@ class StoreProductRequest extends FormRequest
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
             'price' => 'required|numeric|min:0',
+            'compare_price' => 'nullable|numeric|min:0',
             'quantity' => 'nullable|numeric|min:0',
             'is_featured' => 'boolean|required',
+            'sizes' => 'nullable|array',
+            'sizes.*.size_id' => 'required|exists:sizes,id',
+            'sizes.*.additional_price' => 'nullable|numeric|min:0',
+            'sizes.*.stock' => 'nullable|integer|min:0',
         ];
     }
 }

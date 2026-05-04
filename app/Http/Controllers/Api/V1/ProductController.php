@@ -13,54 +13,86 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $products = Product::with('category')->get();
-        return ProductResource::collection($products);
+        $query = Product::with(['category', 'sizes']);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
+
+        if ($request->filled('category')) {
+            $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
+        }
+
+        return ProductResource::collection($query->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreProductRequest $request): ProductResource
     {
-        $product = $request->validated();
-        $product['slug'] = $product['slug'] ?? Str::slug($product['name']);
-        $product = Product::create($product);
+        $validated = $request->validated();
+        $sizes = $validated['sizes'] ?? null;
+        unset($validated['sizes']);
 
-        return new ProductResource($product);
-    }
+        $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
+        $product = Product::create($validated);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product): ProductResource
-    {
+        if ($sizes) {
+            $this->syncSizes($product, $sizes);
+        }
+
         $product->load('category');
 
         return new ProductResource($product);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProductRequest $request, Product $product): ProductResource
+    public function showBySlug(Product $product): ProductResource
     {
-        $product->update($request->validated());
+        $product->load(['category', 'sizes']);
 
-        return new ProductResource($product->load('category'));
+        return new ProductResource($product);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function show(Product $product): ProductResource
+    {
+        $product->load(['category', 'sizes']);
+
+        return new ProductResource($product);
+    }
+
+    public function update(UpdateProductRequest $request, Product $product): ProductResource
+    {
+        $validated = $request->validated();
+        $sizes = $validated['sizes'] ?? null;
+        unset($validated['sizes']);
+
+        $product->update($validated);
+
+        if ($sizes !== null) {
+            $this->syncSizes($product, $sizes);
+        }
+
+        $product->load('category');
+
+        return new ProductResource($product);
+    }
+
     public function destroy(Product $product)
     {
         $product->delete();
+
         return response()->noContent();
+    }
+
+    private function syncSizes(Product $product, array $sizes): void
+    {
+        $sizeData = collect($sizes)->mapWithKeys(fn (array $item) => [
+            $item['size_id'] => [
+                'additional_price' => $item['additional_price'] ?? 0,
+                'stock' => $item['stock'] ?? null,
+            ],
+        ]);
+
+        $product->sizes()->sync($sizeData);
     }
 }

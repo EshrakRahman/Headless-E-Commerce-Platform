@@ -10,61 +10,150 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('index')
                     ->label('No')
+                    ->rowIndex(),
+
+                ImageColumn::make('image')
+                    ->label('Photo')
+                    ->square()
+                    ->size(50)
+                    ->defaultImageUrl(fn () => 'https://placehold.co/50x50?text='.urlencode('No Image')),
+
+                TextColumn::make('name')
                     ->searchable()
                     ->sortable()
-                    ->rowIndex(),
+                    ->description(fn ($record) => $record->slug)
+                    ->wrap(),
+
                 TextColumn::make('category.name')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        default => 'gray',
+                    })
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('name')
-                    ->searchable(),
-                ImageColumn::make('image'),
+
                 TextColumn::make('price')
                     ->money()
-                    ->sortable(),
-                TextColumn::make('quantity')
-                    ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn ($record) => $record->compare_price && $record->compare_price > $record->price
+                        ? 'Was '.number_format($record->compare_price, 2)
+                        : null
+                    )
+                    ->color(fn ($record) => $record->compare_price && $record->compare_price > $record->price
+                        ? Color::Red
+                        : null
+                    ),
+
+                TextColumn::make('stock_status')
+                    ->label('Stock')
+                    ->getStateUsing(function ($record) {
+                        if ($record->sizes()->exists()) {
+                            $total = $record->sizes()->sum('product_size.stock');
+
+                            return $total;
+                        }
+
+                        return $record->quantity;
+                    })
+                    ->formatStateUsing(fn ($state): string => match (true) {
+                        $state > 10 => 'In Stock ('.$state.')',
+                        $state > 0 && $state <= 10 => 'Low ('.$state.')',
+                        default => 'Out of Stock',
+                    })
+                    ->badge()
+                    ->color(fn ($state): string => match (true) {
+                        $state > 10 => 'success',
+                        $state > 0 && $state <= 10 => 'warning',
+                        default => 'danger',
+                    })
+                    ->sortable(query: function (Builder $query, string $direction) {
+                        return $query->orderBy('quantity', $direction);
+                    }),
+
+                TextColumn::make('sizes_count')
+                    ->label('Sizes')
+                    ->counts('sizes')
+                    ->badge()
+                    ->color(fn ($state): string => $state > 0 ? 'info' : 'gray')
+                    ->toggleable(),
+
                 IconColumn::make('is_featured')
-                    ->boolean(),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Featured')
+                    ->boolean()
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->sortable(),
+
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Created')
+                    ->date('M j, Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
+
+                TextColumn::make('deleted_at')
+                    ->label('Deleted')
+                    ->date('M j, Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('category_id')
+                    ->label('Category')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                TernaryFilter::make('is_featured')
+                    ->label('Featured'),
+
+                SelectFilter::make('stock_status')
+                    ->label('Stock Status')
+                    ->options([
+                        'in_stock' => 'In Stock',
+                        'low' => 'Low Stock',
+                        'out_of_stock' => 'Out of Stock',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (! $data['value']) {
+                            return;
+                        }
+
+                        match ($data['value']) {
+                            'in_stock' => $query->where('quantity', '>', 10),
+                            'low' => $query->where('quantity', '>', 0)->where('quantity', '<=', 10),
+                            'out_of_stock' => $query->where(function (Builder $q) {
+                                $q->where('quantity', '<=', 0)->orWhereNull('quantity');
+                            }),
+                        };
+                    }),
+
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ActionGroup::make(
-                    [
-                        ViewAction::make(),
-                        EditAction::make(),
-                        DeleteAction::make(),
-                    ]
-                )
-
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

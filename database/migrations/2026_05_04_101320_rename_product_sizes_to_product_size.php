@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->decimal('compare_price', 5, 2)
-                ->nullable()
-                ->default(0)
-                ->after('price');
-        });
+        Schema::rename('product_sizes', 'product_size');
+
     }
 
     /**
@@ -24,7 +20,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('product_size', function (Blueprint $table) {
             //
         });
     }
