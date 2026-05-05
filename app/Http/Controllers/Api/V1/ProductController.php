@@ -33,6 +33,10 @@ class ProductController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
+        if ($request->filled('limit')) {
+            $query->take($request->integer('limit'));
+        }
+
         return ProductResource::collection($query->get());
     }
 
