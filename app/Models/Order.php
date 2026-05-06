@@ -18,12 +18,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Order extends Model
 {
-    protected $casts = [
-        'shipping_address' => 'array',
-        'billing_address' => 'array',
-        'status' => OrderStatus::class,
-        'payment_status' => PaymentStatus::class,
-    ];
+    public function casts(): array
+    {
+        return [
+            'shipping_address' => 'array',
+            'billing_address' => 'array',
+            'status' => OrderStatus::class,
+            'payment_status' => PaymentStatus::class,
+        ];
+    }
 
     public function items(): HasMany
     {
