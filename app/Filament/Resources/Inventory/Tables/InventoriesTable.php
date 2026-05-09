@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class InventoriesTable
 {
@@ -105,29 +106,45 @@ class InventoriesTable
 
                         match ($data['value']) {
                             'in_stock' => $query->where(function (Builder $q) {
-                                $q->whereNull('deleted_at')
-                                    ->where(function (Builder $q) {
-                                        $q->where('quantity', '>', 10)
-                                            ->orWhereHas('sizes', fn (Builder $q) => $q->havingRaw('SUM(product_size.stock) > 10'));
+                                $q->whereDoesntHave('sizes')
+                                    ->where('quantity', '>', 10);
+
+                                $q->orWhere(function (Builder $q) {
+                                    $q->whereHas('productSizes', function (Builder $q) {
+                                        $q->select(DB::raw('product_id'))
+                                            ->groupBy('product_id')
+                                            ->havingRaw('SUM(stock) > 10');
                                     });
+                                });
                             }),
+
                             'low' => $query->where(function (Builder $q) {
-                                $q->whereNull('deleted_at')
-                                    ->where(function (Builder $q) {
-                                        $q->where('quantity', '>', 0)->where('quantity', '<=', 10)
-                                            ->orWhereHas('sizes', fn (Builder $q) => $q->havingRaw('SUM(product_size.stock) > 0 AND SUM(product_size.stock) <= 10'));
+                                $q->whereDoesntHave('sizes')
+                                    ->where('quantity', '>', 0)
+                                    ->where('quantity', '<=', 10);
+
+                                $q->orWhere(function (Builder $q) {
+                                    $q->whereHas('productSizes', function (Builder $q) {
+                                        $q->select(DB::raw('product_id'))
+                                            ->groupBy('product_id')
+                                            ->havingRaw('SUM(stock) > 0 AND SUM(stock) <= 10');
                                     });
+                                });
                             }),
+
                             'out_of_stock' => $query->where(function (Builder $q) {
-                                $q->whereNull('deleted_at')
+                                $q->whereDoesntHave('sizes')
                                     ->where(function (Builder $q) {
-                                        $q->where(function (Builder $q) {
-                                            $q->where('quantity', '<=', 0)->orWhereNull('quantity');
-                                        })->whereDoesntHave('sizes')
-                                            ->orWhere(function (Builder $q) {
-                                                $q->whereDoesntHave('sizes', fn (Builder $q) => $q->where('stock', '>', 0));
-                                            });
+                                        $q->where('quantity', '<=', 0)
+                                            ->orWhereNull('quantity');
                                     });
+
+                                $q->orWhere(function (Builder $q) {
+                                    $q->whereHas('sizes')
+                                        ->whereDoesntHave('sizes', function (Builder $q) {
+                                            $q->where('stock', '>', 0);
+                                        });
+                                });
                             }),
                         };
                     }),

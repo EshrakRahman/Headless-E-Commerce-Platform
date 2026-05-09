@@ -19,6 +19,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ProductsTable
 {
@@ -138,10 +139,46 @@ class ProductsTable
                         }
 
                         match ($data['value']) {
-                            'in_stock' => $query->where('quantity', '>', 10),
-                            'low' => $query->where('quantity', '>', 0)->where('quantity', '<=', 10),
+                            'in_stock' => $query->where(function (Builder $q) {
+                                $q->whereDoesntHave('sizes')
+                                    ->where('quantity', '>', 10);
+
+                                $q->orWhere(function (Builder $q) {
+                                    $q->whereHas('productSizes', function (Builder $q) {
+                                        $q->select(DB::raw('product_id'))
+                                            ->groupBy('product_id')
+                                            ->havingRaw('SUM(stock) > 10');
+                                    });
+                                });
+                            }),
+
+                            'low' => $query->where(function (Builder $q) {
+                                $q->whereDoesntHave('sizes')
+                                    ->where('quantity', '>', 0)
+                                    ->where('quantity', '<=', 10);
+
+                                $q->orWhere(function (Builder $q) {
+                                    $q->whereHas('productSizes', function (Builder $q) {
+                                        $q->select(DB::raw('product_id'))
+                                            ->groupBy('product_id')
+                                            ->havingRaw('SUM(stock) > 0 AND SUM(stock) <= 10');
+                                    });
+                                });
+                            }),
+
                             'out_of_stock' => $query->where(function (Builder $q) {
-                                $q->where('quantity', '<=', 0)->orWhereNull('quantity');
+                                $q->whereDoesntHave('sizes')
+                                    ->where(function (Builder $q) {
+                                        $q->where('quantity', '<=', 0)
+                                            ->orWhereNull('quantity');
+                                    });
+
+                                $q->orWhere(function (Builder $q) {
+                                    $q->whereHas('sizes')
+                                        ->whereDoesntHave('sizes', function (Builder $q) {
+                                            $q->where('stock', '>', 0);
+                                        });
+                                });
                             }),
                         };
                     }),

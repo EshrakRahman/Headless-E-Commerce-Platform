@@ -4,8 +4,6 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use App\Filament\Resources\Inventory\InventoryResource;
 use App\Models\Product;
-use Filament\Infolists\Components\Actions;
-use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -78,12 +76,11 @@ class ProductInfolist
                                 $state > 0 && $state <= 10 => 'warning',
                                 default => 'danger',
                             }),
-                        Actions::make([
-                            Action::make('viewInventory')
-                                ->label('Full Inventory Details')
-                                ->url(fn (Product $record) => InventoryResource::getUrl('view', ['record' => $record]))
-                                ->icon('heroicon-o-cube'),
-                        ]),
+                        TextEntry::make('inventory_link')
+                            ->label('')
+                            ->getStateUsing(fn () => 'View Full Inventory Details →')
+                            ->url(fn (Product $record) => InventoryResource::getUrl('view', ['record' => $record]))
+                            ->icon('heroicon-o-cube'),
                     ]),
             ]);
     }
