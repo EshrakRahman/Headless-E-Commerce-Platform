@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Filament\Resources\Inventory\InventoryResource;
 use App\Models\Product;
+use Filament\Infolists\Components\Actions;
+use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -56,6 +60,31 @@ class ProductInfolist
                 TextEntry::make('updated_at')
                     ->dateTime()
                     ->placeholder('-'),
+
+                Section::make('Inventory')
+                    ->schema([
+                        TextEntry::make('stock_summary')
+                            ->label('Current Stock')
+                            ->getStateUsing(function ($record) {
+                                if ($record->sizes()->exists()) {
+                                    return $record->sizes()->sum('product_size.stock');
+                                }
+
+                                return $record->quantity ?? 0;
+                            })
+                            ->badge()
+                            ->color(fn ($state): string => match (true) {
+                                $state > 10 => 'success',
+                                $state > 0 && $state <= 10 => 'warning',
+                                default => 'danger',
+                            }),
+                        Actions::make([
+                            Action::make('viewInventory')
+                                ->label('Full Inventory Details')
+                                ->url(fn (Product $record) => InventoryResource::getUrl('view', ['record' => $record]))
+                                ->icon('heroicon-o-cube'),
+                        ]),
+                    ]),
             ]);
     }
 }

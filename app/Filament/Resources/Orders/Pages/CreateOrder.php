@@ -6,6 +6,7 @@ use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductSize;
+use App\Services\InventoryService;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -124,16 +125,12 @@ class CreateOrder extends CreateRecord
 
                 $unitPrice += (float) $pivot->additional_price;
                 $sizeName = $size->name;
-
-                $pivot->decrement('stock', $item['quantity']);
             } else {
                 if ($product->quantity < $item['quantity']) {
                     throw ValidationException::withMessages([
                         'items.*.quantity' => "Not enough stock for '{$product->name}'. Available: {$product->quantity}.",
                     ]);
                 }
-
-                $product->decrement('quantity', $item['quantity']);
             }
 
             $subtotal = $unitPrice * $item['quantity'];
@@ -173,5 +170,9 @@ class CreateOrder extends CreateRecord
     protected function afterCreate(): void
     {
         $this->record->items()->createMany($this->calculatedItemsData);
+
+        $this->record->load('items');
+
+        app(InventoryService::class)->reserveForOrder($this->record);
     }
 }
