@@ -23,14 +23,14 @@ class ProductSizeSeeder extends Seeder
             $pivotData = [];
             foreach ($selectedSizes as $sizeName => $sizeId) {
                 $additionalPrice = match ($sizeName) {
-                    'X-Large' => fake()->randomElement([2, 3, 4]),
-                    'Large' => fake()->randomElement([0, 1, 2]),
+                    'X-Large' => rand(2, 4),
+                    'Large' => rand(0, 2),
                     default => 0,
                 };
 
                 $pivotData[$sizeId] = [
                     'additional_price' => $additionalPrice,
-                    'stock' => fake()->numberBetween(5, 30),
+                    'stock' => rand(5, 30),
                 ];
             }
 
