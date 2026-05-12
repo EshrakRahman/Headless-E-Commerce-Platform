@@ -7,6 +7,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # This environment variable clears the Node.js 20 deprecation warning
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
 
     steps:
       - name: Checkout code
@@ -20,7 +23,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.REMOTE_PATH }}
+            
+            # Start the agent and add your GitHub key so 'git pull' has permission
+            eval "$(ssh-agent -s)"
+            ssh-add ~/.ssh/github_actions
+            
+            # Now the server can successfully talk to GitHub[cite: 1]
             git pull origin main
+            
+            # Standard Laravel optimization commands[cite: 1]
             composer install --no-dev --optimize-autoloader
             php artisan migrate --force
             php artisan optimize
