@@ -132,12 +132,12 @@ class ProductSeeder extends Seeder
                 'category_id' => $categoryIds[$data[0]],
                 'name' => $data[1],
                 'slug' => $slug,
-                'description' => fake()->paragraphs(3, true),
+                'description' => "High-quality {$data[1]} designed for comfort and style. Perfect for everyday wear with a modern fit and premium materials.",
                 'price' => $data[2],
                 'compare_price' => $data[3],
-                'quantity' => fake()->numberBetween(10, 100),
+                'quantity' => rand(10, 100),
                 'image' => 'https://picsum.photos/seed/'.$slug.'/640/480',
-                'is_featured' => fake()->boolean(20),
+                'is_featured' => rand(1, 100) <= 20,
             ]);
         }
 
