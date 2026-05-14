@@ -59,7 +59,7 @@ class ProductInfolist
                     ->dateTime()
                     ->placeholder('-'),
 
-                Section::make('Inventory')
+                \Filament\Schemas\Components\Section::make('Inventory')
                     ->schema([
                         TextEntry::make('stock_summary')
                             ->label('Current Stock')

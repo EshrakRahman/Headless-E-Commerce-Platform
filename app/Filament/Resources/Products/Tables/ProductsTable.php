@@ -20,6 +20,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Filament\Schemas\Components;
 
 class ProductsTable
 {
@@ -35,6 +36,7 @@ class ProductsTable
                 ImageColumn::make('image')
                     ->label('Photo')
                     ->square()
+                    ->disk('s3')
                     ->size(50)
                     ->defaultImageUrl(fn () => 'https://placehold.co/50x50?text='.urlencode('No Image')),
 
