@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BannerController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\OrderController;
@@ -25,6 +26,8 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('products', ProductController::class);
 
     Route::apiResource('categories', CategoryController::class);
+
+    Route::get('banners', [BannerController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('orders', [OrderController::class, 'index']);
