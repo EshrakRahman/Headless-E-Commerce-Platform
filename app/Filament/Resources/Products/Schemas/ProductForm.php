@@ -79,8 +79,9 @@ class ProductForm
     public static function getImageField(): FileUpload
     {
         return FileUpload::make('image')
-            ->disk('public')
-            ->directory('products');
+            ->disk('s3')
+            ->directory('products')
+            ->visibility('public');
     }
 
     public static function getDescriptionField(): RichEditor

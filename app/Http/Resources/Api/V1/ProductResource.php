@@ -23,7 +23,7 @@ class ProductResource extends JsonResource
             'compare_price' => (float) $this->compare_price,
             'quantity' => (int) $this->quantity,
             'image' => $this->image
-                ? (str_starts_with($this->image, 'http') ? $this->image : asset('storage/products/'.$this->image))
+                ? \Storage::disk('s3')->url('products/'.$this->image)
                 : null,
             'sizes' => $this->whenLoaded('sizes', fn () => $this->sizes->map(fn ($size) => [
                 'id' => $size->id,

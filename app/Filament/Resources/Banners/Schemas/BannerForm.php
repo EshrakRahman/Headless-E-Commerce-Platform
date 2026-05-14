@@ -55,14 +55,18 @@ class BannerForm
                     ->schema([
                         FileUpload::make('desktop_image')
                             ->label('Desktop Image')
+                            ->disk('s3')
                             ->image()
                             ->directory('banners')
+                            ->visibility('public')
                             ->nullable(),
 
                         FileUpload::make('mobile_image')
                             ->label('Mobile Image')
+                            ->disk('s3')
                             ->image()
                             ->directory('banners')
+                            ->visibility('public')
                             ->nullable(),
 
                         ColorPicker::make('bg_color')
