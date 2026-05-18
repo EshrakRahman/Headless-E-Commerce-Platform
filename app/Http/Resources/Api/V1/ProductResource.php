@@ -25,7 +25,7 @@ class ProductResource extends JsonResource
             'has_discount' => $this->sale_price !== null && $this->sale_price < (float) $this->price,
             'quantity' => (int) $this->quantity,
             'image' => $this->image
-                ? \Storage::disk('s3')->url('products/'.$this->image)
+                ? (str_starts_with($this->image, 'http') ? $this->image : \Storage::disk('s3')->url('products/'.$this->image))
                 : null,
             'sizes' => $this->whenLoaded('sizes', fn () => $this->sizes->map(fn ($size) => [
                 'id' => $size->id,

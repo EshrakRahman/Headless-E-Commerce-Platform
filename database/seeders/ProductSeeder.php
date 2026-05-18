@@ -136,7 +136,7 @@ class ProductSeeder extends Seeder
                 'price' => $data[2],
                 'compare_price' => $data[3],
                 'quantity' => rand(10, 100),
-                'image' => 'https://picsum.photos/seed/'.$slug.'/640/480',
+                'image' => null,
                 'is_featured' => rand(1, 100) <= 20,
             ]);
         }
