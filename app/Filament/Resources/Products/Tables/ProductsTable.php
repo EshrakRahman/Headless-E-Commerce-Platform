@@ -20,7 +20,6 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use Filament\Schemas\Components;
 
 class ProductsTable
 {

@@ -31,7 +31,7 @@ class OrderController extends Controller
 
             foreach ($validated['items'] as $item) {
                 $product = Product::with('sizes')->findOrFail($item['product_id']);
-                $unitPrice = (float) $product->price;
+                $unitPrice = $product->sale_price ?? (float) $product->price;
                 $sizeName = null;
 
                 if (! empty($item['size_id'])) {

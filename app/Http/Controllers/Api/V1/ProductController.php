@@ -15,7 +15,7 @@ class ProductController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Product::with(['category', 'sizes']);
+        $query = Product::with(['category', 'sizes', 'discounts']);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
@@ -60,14 +60,14 @@ class ProductController extends Controller
 
     public function showBySlug(string $slug): ProductResource
     {
-        $product = Product::where('slug', $slug)->with(['category', 'sizes'])->firstOrFail();
+        $product = Product::where('slug', $slug)->with(['category', 'sizes', 'discounts'])->firstOrFail();
 
         return new ProductResource($product);
     }
 
     public function show(Product $product): ProductResource
     {
-        $product->load(['category', 'sizes']);
+        $product->load(['category', 'sizes', 'discounts']);
 
         return new ProductResource($product);
     }

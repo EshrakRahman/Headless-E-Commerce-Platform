@@ -23,7 +23,7 @@ class CartController extends Controller
 
         foreach ($request->items as $item) {
             $product = Product::with('sizes')->findOrFail($item['product_id']);
-            $unitPrice = (float) $product->price;
+            $unitPrice = $product->sale_price ?? (float) $product->price;
             $sizeName = null;
             $sizeId = null;
             $available = $product->quantity;

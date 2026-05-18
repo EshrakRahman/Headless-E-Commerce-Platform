@@ -21,18 +21,23 @@ class OrderResource extends JsonResource
                 'product_name' => $item->product_name,
                 'size_name' => $item->size_name,
                 'quantity' => $item->quantity,
-                'unit_price' => (float) $item->unit_price,
-                'subtotal' => (float) $item->subtotal,
+                'unit_price' => $this->formatPrice($item->unit_price),
+                'subtotal' => $this->formatPrice($item->subtotal),
             ])),
-            'subtotal' => (float) $this->subtotal,
-            'shipping_cost' => (float) $this->shipping_cost,
-            'discount' => (float) $this->discount,
-            'total' => (float) $this->total,
+            'subtotal' => $this->formatPrice($this->subtotal),
+            'shipping_cost' => $this->formatPrice($this->shipping_cost),
+            'discount' => $this->formatPrice($this->discount),
+            'total' => $this->formatPrice($this->total),
             'shipping_address' => $this->shipping_address,
             'billing_address' => $this->billing_address,
             'notes' => $this->notes,
             'payment_status' => $this->payment_status,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
+    }
+
+    private function formatPrice(?float $value): ?float
+    {
+        return $value !== null ? (float) number_format($value, 2, '.', '') : null;
     }
 }

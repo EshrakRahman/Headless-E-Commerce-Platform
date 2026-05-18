@@ -48,4 +48,29 @@ class Product extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    public function discounts(): BelongsToMany
+    {
+        return $this->belongsToMany(Discount::class);
+    }
+
+    public function getSalePriceAttribute(): ?float
+    {
+        $activeDiscount = $this->discounts()
+            ->active()
+            ->get()
+            ->sortByDesc(fn ($discount) => $discount->type === 'percentage'
+                ? $discount->value * $this->price / 100
+                : $discount->value
+            )
+            ->first();
+
+        if ($activeDiscount === null) {
+            return null;
+        }
+
+        return $activeDiscount->type === 'percentage'
+            ? round($this->price * (1 - $activeDiscount->value / 100), 2)
+            : max(0, $this->price - $activeDiscount->value);
+    }
 }
