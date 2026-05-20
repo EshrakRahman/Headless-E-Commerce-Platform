@@ -8,6 +8,7 @@ use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ProductInfolist
@@ -58,7 +59,7 @@ class ProductInfolist
                     ->dateTime()
                     ->placeholder('-'),
 
-                \Filament\Schemas\Components\Section::make('Inventory')
+                Section::make('Inventory')
                     ->schema([
                         TextEntry::make('stock_summary')
                             ->label('Current Stock')

@@ -80,8 +80,7 @@ class ProductForm
     {
         return FileUpload::make('image')
             ->disk('s3')
-            ->directory('products')
-            ->visibility('public');
+            ->directory('products');
     }
 
     public static function getDescriptionField(): RichEditor

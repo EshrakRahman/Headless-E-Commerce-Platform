@@ -58,7 +58,6 @@ class BannerForm
                             ->disk('s3')
                             ->image()
                             ->directory('banners')
-                            ->visibility('public')
                             ->nullable(),
 
                         FileUpload::make('mobile_image')
@@ -66,7 +65,6 @@ class BannerForm
                             ->disk('s3')
                             ->image()
                             ->directory('banners')
-                            ->visibility('public')
                             ->nullable(),
 
                         ColorPicker::make('bg_color')
