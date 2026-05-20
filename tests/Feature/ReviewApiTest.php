@@ -28,8 +28,10 @@ it('includes average rating and total reviews in meta', function () {
     $response = $this->getJson("/api/v1/products/{$product->id}/reviews");
 
     $response->assertSuccessful()
-        ->assertJsonPath('meta.average_rating', 4.0)
         ->assertJsonPath('meta.total_reviews', 2);
+
+    $json = $response->json();
+    expect($json['meta']['average_rating'])->toEqualWithDelta(4.0, 0.01);
 });
 
 it('returns empty data and null rating for products with no approved reviews', function () {

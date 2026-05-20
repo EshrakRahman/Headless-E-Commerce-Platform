@@ -4,8 +4,6 @@ namespace App\Filament\Resources\Reviews\Tables;
 
 use App\Models\Review;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
@@ -62,8 +60,6 @@ class ReviewsTable
             ])
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
-
                     Action::make('approve')
                         ->label('Approve')
                         ->icon(Heroicon::OutlinedCheck)
@@ -93,8 +89,6 @@ class ReviewsTable
                     ->color('danger')
                     ->action(fn (Collection $records) => $records->each->update(['is_approved' => false]))
                     ->deselectRecordsAfterCompletion(),
-
-                DeleteAction::make(),
             ]);
     }
 }
