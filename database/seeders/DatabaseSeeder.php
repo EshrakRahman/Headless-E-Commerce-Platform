@@ -23,10 +23,5 @@ class DatabaseSeeder extends Seeder
             BannerSeeder::class,
             DiscountSeeder::class,
         ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
     }
 }
