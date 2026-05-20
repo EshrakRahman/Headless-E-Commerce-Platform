@@ -55,4 +55,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(Product::class, 'wishlists')
             ->withTimestamps();
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 }

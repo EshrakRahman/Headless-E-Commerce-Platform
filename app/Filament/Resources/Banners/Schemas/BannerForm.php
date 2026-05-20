@@ -58,6 +58,8 @@ class BannerForm
                             ->disk('s3')
                             ->image()
                             ->directory('banners')
+                            ->maxSize(2048)
+                            ->helperText('Maximum file size: 2MB')
                             ->nullable(),
 
                         FileUpload::make('mobile_image')
@@ -65,6 +67,8 @@ class BannerForm
                             ->disk('s3')
                             ->image()
                             ->directory('banners')
+                            ->maxSize(2048)
+                            ->helperText('Maximum file size: 2MB')
                             ->nullable(),
 
                         ColorPicker::make('bg_color')

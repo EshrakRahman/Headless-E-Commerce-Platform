@@ -16,12 +16,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'status', 'shipping_cost',
     'discount', 'total', 'notes',
     'payment_method', 'payment_status',
+    'payment_intent_id',
     'shipping_address', 'billing_address',
 ])]
 class Order extends Model
 {
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
+
+    /**
+     * Transient attribute — not persisted to the database.
+     * Set after creating a Stripe PaymentIntent so the API can return it.
+     */
+    public ?string $payment_intent_client_secret = null;
 
     public function casts(): array
     {

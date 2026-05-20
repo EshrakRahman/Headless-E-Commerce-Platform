@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    /**
+     * Preview a cart — check stock availability and calculate prices.
+     *
+     * @tags Cart
+     */
     public function preview(Request $request): JsonResponse
     {
         $request->validate([

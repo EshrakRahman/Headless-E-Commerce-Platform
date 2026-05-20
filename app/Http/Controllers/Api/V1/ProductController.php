@@ -13,6 +13,13 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    /**
+     * List products with optional search, category filter, featured filter, and sorting.
+     *
+     * @tags Products
+     *
+     * @unauthenticated
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Product::with(['category', 'sizes', 'discounts']);
@@ -40,6 +47,13 @@ class ProductController extends Controller
         return ProductResource::collection($query->get());
     }
 
+    /**
+     * Create a new product.
+     *
+     * @tags Products
+     *
+     * @unauthenticated
+     */
     public function store(StoreProductRequest $request): ProductResource
     {
         $validated = $request->validated();
@@ -58,6 +72,13 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    /**
+     * Get a product by its slug.
+     *
+     * @tags Products
+     *
+     * @unauthenticated
+     */
     public function showBySlug(string $slug): ProductResource
     {
         $product = Product::where('slug', $slug)->with(['category', 'sizes', 'discounts'])->firstOrFail();
@@ -65,6 +86,13 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    /**
+     * Get a product by its ID.
+     *
+     * @tags Products
+     *
+     * @unauthenticated
+     */
     public function show(Product $product): ProductResource
     {
         $product->load(['category', 'sizes', 'discounts']);
@@ -72,6 +100,13 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    /**
+     * Update an existing product.
+     *
+     * @tags Products
+     *
+     * @unauthenticated
+     */
     public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
         $validated = $request->validated();
@@ -89,6 +124,13 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    /**
+     * Soft-delete a product.
+     *
+     * @tags Products
+     *
+     * @unauthenticated
+     */
     public function destroy(Product $product)
     {
         $product->delete();

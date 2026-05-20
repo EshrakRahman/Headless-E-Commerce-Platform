@@ -54,6 +54,23 @@ class Product extends Model
         return $this->belongsToMany(Discount::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    public function getAvgRatingAttribute(): ?float
+    {
+        $avg = $this->approvedReviews()->avg('rating');
+
+        return $avg !== null ? round((float) $avg, 1) : null;
+    }
+
     public function getSalePriceAttribute(): ?float
     {
         $activeDiscount = $this->discounts()

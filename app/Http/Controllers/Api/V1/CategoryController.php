@@ -12,6 +12,10 @@ class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
+     * @tags Categories
+     *
+     * @unauthenticated
      */
     public function index()
     {
@@ -22,6 +26,10 @@ class CategoryController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @tags Categories
+     *
+     * @unauthenticated
      */
     public function store(StoreCategoryRequest $request)
     {
@@ -32,6 +40,10 @@ class CategoryController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * @tags Categories
+     *
+     * @unauthenticated
      */
     public function show(Category $category)
     {
@@ -41,6 +53,10 @@ class CategoryController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @tags Categories
+     *
+     * @unauthenticated
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
@@ -51,6 +67,10 @@ class CategoryController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @tags Categories
+     *
+     * @unauthenticated
      */
     public function destroy(Category $category)
     {

@@ -24,6 +24,7 @@ class OrderFactory extends Factory
             'notes' => null,
             'payment_method' => null,
             'payment_status' => 'pending',
+            'payment_intent_id' => null,
             'shipping_address' => null,
             'billing_address' => null,
         ];

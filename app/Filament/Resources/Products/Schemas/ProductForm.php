@@ -80,7 +80,9 @@ class ProductForm
     {
         return FileUpload::make('image')
             ->disk('s3')
-            ->directory('products');
+            ->directory('products')
+            ->maxSize(2048)
+            ->helperText('Maximum file size: 2MB');
     }
 
     public static function getDescriptionField(): RichEditor

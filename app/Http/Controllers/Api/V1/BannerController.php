@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class BannerController extends Controller
 {
+    /**
+     * List active banners, optionally filtered by position.
+     *
+     * @tags Banners
+     *
+     * @unauthenticated
+     */
     public function index(Request $request)
     {
         $position = $request->query('position', 'hero');

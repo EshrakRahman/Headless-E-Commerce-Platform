@@ -11,6 +11,11 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class WishlistController extends Controller
 {
+    /**
+     * List the authenticated user's wishlist items.
+     *
+     * @tags Wishlist
+     */
     public function index(): AnonymousResourceCollection
     {
         $products = auth()->user()
@@ -21,6 +26,11 @@ class WishlistController extends Controller
         return ProductResource::collection($products);
     }
 
+    /**
+     * Add a product to the wishlist.
+     *
+     * @tags Wishlist
+     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -32,6 +42,11 @@ class WishlistController extends Controller
         return response()->json(['message' => 'Added to wishlist']);
     }
 
+    /**
+     * Remove a product from the wishlist.
+     *
+     * @tags Wishlist
+     */
     public function destroy(Product $product): JsonResponse
     {
         auth()->user()->wishlist()->detach($product->id);

@@ -34,6 +34,8 @@ class ProductResource extends JsonResource
                 'stock' => (int) $size->pivot->stock,
             ])),
             'is_featured' => $this->is_featured,
+            'rating' => $this->when($this->relationLoaded('approvedReviews'), $this->avg_rating),
+            'review_count' => $this->when($this->relationLoaded('approvedReviews'), fn () => $this->approvedReviews->count()),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }

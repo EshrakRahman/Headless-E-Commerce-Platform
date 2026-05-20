@@ -7,100 +7,128 @@ use App\Http\Requests\Api\V1\Order\StoreOrderRequest;
 use App\Http\Resources\Api\V1\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\PaymentService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Stripe\Exception\ApiErrorException;
 use Throwable;
 
 class OrderController extends Controller
 {
     /**
+     * Place a new order and create a Stripe PaymentIntent.
+     *
+     * @tags Orders
+     *
      * @throws Throwable
      */
-    public function store(StoreOrderRequest $request): JsonResource
+    public function store(StoreOrderRequest $request, PaymentService $paymentService): JsonResource
     {
         $validated = $request->validated();
 
-        return DB::transaction(function () use ($validated) {
-            $user = auth()->user();
+        try {
+            return DB::transaction(function () use ($validated, $paymentService) {
+                $user = auth()->user();
 
-            $itemsData = [];
+                $itemsData = [];
 
-            $total = 0;
+                $total = 0;
 
-            foreach ($validated['items'] as $item) {
-                $product = Product::with('sizes')->findOrFail($item['product_id']);
-                $unitPrice = $product->sale_price ?? (float) $product->price;
-                $sizeName = null;
+                foreach ($validated['items'] as $item) {
+                    $product = Product::with('sizes')->findOrFail($item['product_id']);
+                    $unitPrice = $product->sale_price ?? (float) $product->price;
+                    $sizeName = null;
 
-                if (! empty($item['size_id'])) {
-                    $size = $product->sizes()
-                        ->where('size_id', $item['size_id'])
-                        ->first();
+                    if (! empty($item['size_id'])) {
+                        $size = $product->sizes()
+                            ->where('size_id', $item['size_id'])
+                            ->first();
 
-                    if (! $size) {
-                        throw ValidationException::withMessages([
-                            'items.*.size_id' => "Size is not available for product '$product->name'.",
-                        ]);
+                        if (! $size) {
+                            throw ValidationException::withMessages([
+                                'items.*.size_id' => "Size is not available for product '$product->name'.",
+                            ]);
+                        }
+
+                        $pivot = $size->pivot;
+
+                        if ($pivot->stock < $item['quantity']) {
+                            throw ValidationException::withMessages([
+                                'items.*.quantity' => "Not enough stock for $product->name - {$size->name}. Available: $pivot->stock.",
+                            ]);
+                        }
+
+                        $unitPrice += (float) $pivot->additional_price;
+                        $sizeName = $size->name;
+
+                        $pivot->decrement('stock', $item['quantity']);
+                    } else {
+                        if ($product->quantity < $item['quantity']) {
+                            throw ValidationException::withMessages([
+                                'items.*.quantity' => "Not enough stock for '{$product->name}'. Available: {$product->quantity}.",
+                            ]);
+                        }
+
+                        $product->decrement('quantity', $item['quantity']);
                     }
 
-                    $pivot = $size->pivot;
+                    $subtotal = $unitPrice * $item['quantity'];
+                    $total += $subtotal;
 
-                    if ($pivot->stock < $item['quantity']) {
-                        throw ValidationException::withMessages([
-                            'items.*.quantity' => "Not enough stock for $product->name - {$size->name}. Available: $pivot->stock.",
-                        ]);
-                    }
-
-                    $unitPrice += (float) $pivot->additional_price;
-                    $sizeName = $size->name;
-
-                    $pivot->decrement('stock', $item['quantity']);
-                } else {
-                    if ($product->quantity < $item['quantity']) {
-                        throw ValidationException::withMessages([
-                            'items.*.quantity' => "Not enough stock for '{$product->name}'. Available: {$product->quantity}.",
-                        ]);
-                    }
-
-                    $product->decrement('quantity', $item['quantity']);
+                    $itemsData[] = [
+                        'product_id' => $product->id,
+                        'size_id' => $item['size_id'] ?? null,
+                        'product_name' => $product->name,
+                        'size_name' => $sizeName,
+                        'unit_price' => $unitPrice,
+                        'quantity' => $item['quantity'],
+                        'subtotal' => $subtotal,
+                    ];
                 }
 
-                $subtotal = $unitPrice * $item['quantity'];
-                $total += $subtotal;
+                $lastId = Order::max('id') ?? 0;
 
-                $itemsData[] = [
-                    'product_id' => $product->id,
-                    'size_id' => $item['size_id'] ?? null,
-                    'product_name' => $product->name,
-                    'size_name' => $sizeName,
-                    'unit_price' => $unitPrice,
-                    'quantity' => $item['quantity'],
-                    'subtotal' => $subtotal,
-                ];
-            }
+                $order = $user->orders()->create([
+                    'order_number' => 'ORD-'.now()->format('Ymd').'-'.str_pad($lastId + 1, 4, '0', STR_PAD_LEFT),
+                    'status' => 'pending',
+                    'subtotal' => $total,
+                    'total' => $total,
+                    'notes' => $validated['notes'] ?? null,
+                    'payment_method' => $validated['payment_method'] ?? 'stripe',
+                    'payment_status' => 'pending',
+                    'shipping_address' => $validated['shipping_address'],
+                    'billing_address' => $validated['billing_address'] ?? null,
+                ]);
 
-            $lastId = Order::max('id') ?? 0;
+                $order->items()->createMany($itemsData);
 
-            $order = $user->orders()->create([
-                'order_number' => 'ORD-'.now()->format('Ymd').'-'.str_pad($lastId + 1, 4, '0', STR_PAD_LEFT),
-                'status' => 'pending',
-                'subtotal' => $total,
-                'total' => $total,
-                'notes' => $validated['notes'] ?? null,
-                'shipping_address' => $validated['shipping_address'],
-                'billing_address' => $validated['billing_address'] ?? null,
+                $intent = $paymentService->createIntent($order);
+
+                $order->update([
+                    'payment_intent_id' => $intent['payment_intent_id'],
+                ]);
+
+                $order->payment_intent_client_secret = $intent['client_secret'];
+
+                $order->load('items');
+
+                return new OrderResource($order);
+            });
+        } catch (ApiErrorException $e) {
+            throw ValidationException::withMessages([
+                'payment' => 'Payment processing failed. Please try again.',
             ]);
-
-            $order->items()->createMany($itemsData);
-
-            $order->load('items');
-
-            return new OrderResource($order);
-        });
+        }
     }
 
+    /**
+     * List the authenticated user's orders.
+     *
+     * @tags Orders
+     */
     public function index(): AnonymousResourceCollection
     {
         $orders = auth()->user()
@@ -112,6 +140,11 @@ class OrderController extends Controller
         return OrderResource::collection($orders);
     }
 
+    /**
+     * Get a single order with its items.
+     *
+     * @tags Orders
+     */
     public function show(Order $order): JsonResource
     {
         abort_if($order->user_id !== auth()->id(), 403);
@@ -119,5 +152,87 @@ class OrderController extends Controller
         $order->load('items');
 
         return new OrderResource($order);
+    }
+
+    /**
+     * Retry payment for a failed order by creating a new PaymentIntent.
+     *
+     * @tags Orders
+     *
+     * @throws ApiErrorException
+     */
+    public function retryPayment(Order $order, PaymentService $paymentService): JsonResponse
+    {
+        abort_if($order->user_id !== auth()->id(), 403);
+        abort_if($order->payment_status?->value === 'paid', 422, 'Order is already paid.');
+
+        try {
+            // Cancel the old intent if it's still actionable
+            if ($order->payment_intent_id !== null) {
+                $paymentService->cancelIntent($order->payment_intent_id);
+            }
+
+            $intent = $paymentService->createIntent($order);
+
+            $order->update([
+                'payment_intent_id' => $intent['payment_intent_id'],
+                'payment_status' => 'pending',
+            ]);
+
+            return response()->json([
+                'payment_intent_id' => $intent['payment_intent_id'],
+                'payment_intent_client_secret' => $intent['client_secret'],
+            ]);
+        } catch (ApiErrorException $e) {
+            throw ValidationException::withMessages([
+                'payment' => 'Payment processing failed. Please try again.',
+            ]);
+        }
+    }
+
+    /**
+     * Check the payment status of an order.
+     *
+     * @tags Orders
+     */
+    public function paymentStatus(Order $order): JsonResponse
+    {
+        abort_if($order->user_id !== auth()->id(), 403);
+
+        return response()->json([
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'payment_status' => $order->payment_status,
+            'status' => $order->status,
+        ]);
+    }
+
+    /**
+     * Confirm the payment by checking the PaymentIntent status directly with Stripe.
+     *
+     * @tags Orders
+     *
+     * @throws ApiErrorException
+     */
+    public function confirmPayment(Order $order, PaymentService $paymentService): JsonResponse
+    {
+        abort_if($order->user_id !== auth()->id(), 403);
+
+        try {
+            $result = $paymentService->confirmPayment($order);
+
+            return response()->json([
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'paid' => $result['paid'],
+                'payment_status' => $order->payment_status,
+                'status' => $order->status,
+                'stripe_status' => $result['payment_intent_status'],
+            ]);
+        } catch (ApiErrorException $e) {
+            return response()->json([
+                'message' => 'Unable to verify payment. Please try again.',
+            ], 502);
+        }
     }
 }

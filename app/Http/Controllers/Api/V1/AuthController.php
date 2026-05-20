@@ -10,6 +10,13 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
+    /**
+     * Register a new user and return an API token.
+     *
+     * @tags Authentication
+     *
+     * @unauthenticated
+     */
     public function register(Request $request)
     {
         $request->validate([
@@ -33,6 +40,13 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Login and return an API token.
+     *
+     * @tags Authentication
+     *
+     * @unauthenticated
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -57,6 +71,11 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Revoke the current API token.
+     *
+     * @tags Authentication
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

@@ -32,6 +32,11 @@ class OrderResource extends JsonResource
             'billing_address' => $this->billing_address,
             'notes' => $this->notes,
             'payment_status' => $this->payment_status,
+            'payment_intent_id' => $this->payment_intent_id,
+            'payment_intent_client_secret' => $this->when(
+                $this->payment_intent_client_secret !== null,
+                $this->payment_intent_client_secret,
+            ),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }
