@@ -18,6 +18,7 @@ class OrderResource extends JsonResource
             'order_number' => $this->order_number,
             'status' => $this->status,
             'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
+                'product_id' => $item->product_id,
                 'product_name' => $item->product_name,
                 'size_name' => $item->size_name,
                 'quantity' => $item->quantity,
@@ -27,6 +28,7 @@ class OrderResource extends JsonResource
             'subtotal' => $this->formatPrice($this->subtotal),
             'shipping_cost' => $this->formatPrice($this->shipping_cost),
             'discount' => $this->formatPrice($this->discount),
+            'coupon_code' => $this->coupon_code,
             'total' => $this->formatPrice($this->total),
             'shipping_address' => $this->shipping_address,
             'billing_address' => $this->billing_address,

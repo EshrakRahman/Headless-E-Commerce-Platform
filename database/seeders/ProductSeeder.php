@@ -14,115 +14,295 @@ class ProductSeeder extends Seeder
         $categoryIds = Category::pluck('id', 'name');
 
         $products = [
-            // Clothing (25)
-            ['Clothing', 'Classic Fit Oxford Shirt', 49.99, 69.99],
-            ['Clothing', 'Slim Fit Chino Pants', 59.99, null],
-            ['Clothing', 'Premium Cotton T-Shirt', 29.99, 39.99],
-            ['Clothing', 'Lightweight Denim Jacket', 89.99, 129.99],
-            ['Clothing', 'Casual Linen Blazer', 119.99, null],
-            ['Clothing', 'Athletic Performance Shorts', 34.99, 44.99],
-            ['Clothing', 'Merino Wool Sweater', 79.99, null],
-            ['Clothing', 'Stretch Fit Skinny Jeans', 69.99, 89.99],
-            ['Clothing', 'Waterproof Rain Jacket', 129.99, 169.99],
-            ['Clothing', 'Cotton Hoodie', 54.99, null],
-            ['Clothing', 'Pleated Trousers', 64.99, 79.99],
-            ['Clothing', 'Polo Shirt', 44.99, null],
-            ['Clothing', 'Quilted Vest', 74.99, 99.99],
-            ['Clothing', 'Cargo Shorts', 39.99, null],
-            ['Clothing', 'Formal Dress Shirt', 59.99, 79.99],
-            ['Clothing', 'Leather Bomber Jacket', 199.99, 259.99],
-            ['Clothing', 'Graphic Print T-Shirt', 24.99, null],
-            ['Clothing', 'High-Waist Trousers', 54.99, 69.99],
-            ['Clothing', 'Cardigan Sweater', 69.99, null],
-            ['Clothing', 'Track Pants', 44.99, 59.99],
-            ['Clothing', 'Denim Shirt', 49.99, null],
-            ['Clothing', 'Wool Overcoat', 249.99, 349.99],
-            ['Clothing', 'Summer Dress', 39.99, 54.99],
-            ['Clothing', 'Tailored Blazer', 159.99, null],
-            ['Clothing', 'Casual Joggers', 49.99, 64.99],
+            // Clothing (8)
+            [
+                'Clothing',
+                'Classic Fit Oxford Shirt',
+                49.99,
+                69.99,
+                'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Slim Fit Chino Pants',
+                59.99,
+                null,
+                'https://images.unsplash.com/photo-1479064555552-3ef4979f8908?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Premium Cotton T-Shirt',
+                24.99,
+                34.99,
+                'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Lightweight Denim Jacket',
+                89.99,
+                119.99,
+                'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Cotton Comfort Hoodie',
+                54.99,
+                null,
+                'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Leather Bomber Jacket',
+                199.99,
+                259.99,
+                'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Summer Linen Shorts',
+                39.99,
+                49.99,
+                'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Clothing',
+                'Structured Trench Coat',
+                149.99,
+                199.99,
+                'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&auto=format&fit=crop&q=80'
+            ],
 
-            // Shoes (15)
-            ['Shoes', 'Running Pro Sneakers', 119.99, 149.99],
-            ['Shoes', 'Leather Chelsea Boots', 169.99, null],
-            ['Shoes', 'Classic Canvas Sneakers', 49.99, 64.99],
-            ['Shoes', 'Formal Oxford Shoes', 139.99, 179.99],
-            ['Shoes', 'Slip-On Loafers', 89.99, null],
-            ['Shoes', 'Trail Hiking Boots', 149.99, 199.99],
-            ['Shoes', 'Casual Espadrilles', 39.99, null],
-            ['Shoes', 'Basketball High-Tops', 129.99, 159.99],
-            ['Shoes', 'Leather Sandals', 59.99, 79.99],
-            ['Shoes', 'Winter Snow Boots', 179.99, null],
-            ['Shoes', 'Minimalist White Sneakers', 79.99, 99.99],
-            ['Shoes', 'Wingtip Brogues', 159.99, null],
-            ['Shoes', 'Flip Flops', 19.99, 29.99],
-            ['Shoes', 'Ankle Boots', 119.99, 149.99],
-            ['Shoes', 'Platform Sneakers', 89.99, null],
+            // Shoes (8)
+            [
+                'Shoes',
+                'Running Pro Sneakers',
+                119.99,
+                149.99,
+                'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Leather Chelsea Boots',
+                169.99,
+                null,
+                'https://images.unsplash.com/photo-1638247025967-b4e38f6893b8?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Classic Canvas Sneakers',
+                49.99,
+                64.99,
+                'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Formal Oxford Shoes',
+                139.99,
+                179.99,
+                'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Slip-On Leather Loafers',
+                89.99,
+                null,
+                'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Minimalist White Sneakers',
+                79.99,
+                99.99,
+                'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Suede Desert Boots',
+                129.99,
+                159.99,
+                'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Shoes',
+                'Outdoor Trail Hiking Shoes',
+                159.99,
+                199.99,
+                'https://images.unsplash.com/photo-1582966772680-860e372bb558?w=600&auto=format&fit=crop&q=80'
+            ],
 
-            // Accessories (15)
-            ['Accessories', 'Minimalist Leather Watch', 199.99, 279.99],
-            ['Accessories', 'Canvas Backpack', 69.99, 89.99],
-            ['Accessories', 'Premium Leather Belt', 49.99, null],
-            ['Accessories', 'Aviator Sunglasses', 129.99, 179.99],
-            ['Accessories', 'Wool Beanie', 24.99, null],
-            ['Accessories', 'Leather Messenger Bag', 149.99, 199.99],
-            ['Accessories', 'Sports Cap', 19.99, 29.99],
-            ['Accessories', 'Silver Chain Necklace', 89.99, null],
-            ['Accessories', 'Leather Wallet', 44.99, 59.99],
-            ['Accessories', 'Silk Scarf', 39.99, null],
-            ['Accessories', 'Digital Watch', 149.99, 199.99],
-            ['Accessories', 'Tote Bag', 79.99, null],
-            ['Accessories', 'Leather Gloves', 54.99, 69.99],
-            ['Accessories', 'Sun Hat', 29.99, null],
-            ['Accessories', 'Luggage Tag Set', 14.99, 24.99],
+            // Accessories (8)
+            [
+                'Accessories',
+                'Minimalist Leather Watch',
+                199.99,
+                279.99,
+                'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Canvas Travel Backpack',
+                69.99,
+                89.99,
+                'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Aviator Sunglasses',
+                129.99,
+                179.99,
+                'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Premium Leather Wallet',
+                44.99,
+                59.99,
+                'https://images.unsplash.com/photo-1627124224423-424a779ab6a7?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Silver Chain Necklace',
+                89.99,
+                null,
+                'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Classic Wool Beanie',
+                24.99,
+                null,
+                'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Structured Leather Belt',
+                34.99,
+                49.99,
+                'https://images.unsplash.com/photo-1624222247344-550fb8ecf7db?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Accessories',
+                'Polarized Sports Sunglasses',
+                109.99,
+                139.99,
+                'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&auto=format&fit=crop&q=80'
+            ],
 
-            // Electronics (25)
-            ['Electronics', 'Wireless Noise-Cancelling Headphones', 249.99, 349.99],
-            ['Electronics', 'Bluetooth Speaker', 79.99, 99.99],
-            ['Electronics', 'Fast Wireless Charger', 34.99, null],
-            ['Electronics', 'Phone Case', 24.99, 39.99],
-            ['Electronics', 'USB-C Hub Adapter', 44.99, null],
-            ['Electronics', 'Portable Power Bank', 59.99, 79.99],
-            ['Electronics', 'Mechanical Keyboard', 129.99, 169.99],
-            ['Electronics', 'Wireless Mouse', 49.99, null],
-            ['Electronics', 'Webcam 4K', 89.99, 119.99],
-            ['Electronics', 'Laptop Stand', 39.99, null],
-            ['Electronics', 'Smart LED Light Strip', 29.99, 44.99],
-            ['Electronics', 'Noise-Cancelling Earbuds', 179.99, 229.99],
-            ['Electronics', 'Dash Cam', 99.99, null],
-            ['Electronics', 'Fitness Tracker', 69.99, 89.99],
-            ['Electronics', 'Smart Plug', 19.99, null],
-            ['Electronics', 'Cable Management Kit', 14.99, 24.99],
-            ['Electronics', 'Gaming Headset', 89.99, 129.99],
-            ['Electronics', 'Monitor Arm Mount', 59.99, null],
-            ['Electronics', 'Desk LED Lamp', 44.99, 59.99],
-            ['Electronics', 'Screen Protector 3-Pack', 12.99, null],
-            ['Electronics', 'Car Phone Mount', 19.99, 29.99],
-            ['Electronics', 'Wireless Presenter', 34.99, null],
-            ['Electronics', 'HDMI Cable 6ft', 9.99, 14.99],
-            ['Electronics', 'Smart Thermostat', 129.99, 169.99],
-            ['Electronics', 'Electric Toothbrush', 79.99, null],
+            // Electronics (8)
+            [
+                'Electronics',
+                'Wireless Noise-Cancelling Headphones',
+                249.99,
+                349.99,
+                'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Bluetooth Portable Speaker',
+                79.99,
+                99.99,
+                'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Mechanical Gaming Keyboard',
+                129.99,
+                169.99,
+                'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Wireless Ergonomic Mouse',
+                49.99,
+                null,
+                'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Noise-Cancelling Earbuds',
+                179.99,
+                229.99,
+                'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Webcam HD Pro',
+                89.99,
+                119.99,
+                'https://images.unsplash.com/photo-1627914488344-90aaef1b70ca?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Dual USB-C Fast Charger',
+                29.99,
+                39.99,
+                'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Electronics',
+                'Minimalist Desk Mat',
+                39.99,
+                null,
+                'https://images.unsplash.com/photo-1632292224971-0d45778bd364?w=600&auto=format&fit=crop&q=80'
+            ],
 
-            // Home & Kitchen (20)
-            ['Home & Kitchen', 'Insulated Water Bottle', 29.99, 39.99],
-            ['Home & Kitchen', 'Bamboo Cutting Board', 24.99, null],
-            ['Home & Kitchen', 'Stainless Steel French Press', 44.99, 59.99],
-            ['Home & Kitchen', 'Scented Candle Set', 34.99, null],
-            ['Home & Kitchen', 'Kitchen Knife Set', 89.99, 129.99],
-            ['Home & Kitchen', 'Plant Pot with Stand', 39.99, null],
-            ['Home & Kitchen', 'Glass Food Containers', 29.99, 44.99],
-            ['Home & Kitchen', 'Memory Foam Pillow', 49.99, 69.99],
-            ['Home & Kitchen', 'Microfiber Cleaning Set', 19.99, null],
-            ['Home & Kitchen', 'Cast Iron Skillet', 54.99, 74.99],
-            ['Home & Kitchen', 'LED Desk Clock', 24.99, null],
-            ['Home & Kitchen', 'Wall Mounted Shelf', 34.99, 49.99],
-            ['Home & Kitchen', 'Reusable Silicone Bags', 14.99, null],
-            ['Home & Kitchen', 'Ceramic Mug Set', 29.99, 44.99],
-            ['Home & Kitchen', 'Shoe Rack', 39.99, null],
-            ['Home & Kitchen', 'Sushi Making Kit', 24.99, 39.99],
-            ['Home & Kitchen', 'Laundry Hamper', 34.99, null],
-            ['Home & Kitchen', 'Over-the-Door Organizer', 19.99, 29.99],
-            ['Home & Kitchen', 'Electric Kettle', 44.99, null],
-            ['Home & Kitchen', 'Bath Towel Set', 39.99, 54.99],
+            // Home & Kitchen (8)
+            [
+                'Home & Kitchen',
+                'Insulated Water Bottle',
+                29.99,
+                39.99,
+                'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Bamboo Cutting Board',
+                24.99,
+                null,
+                'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Stainless Steel French Press',
+                44.99,
+                59.99,
+                'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Scented Wax Candle Set',
+                34.99,
+                null,
+                'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Premium Chef Knife',
+                89.99,
+                129.99,
+                'https://images.unsplash.com/photo-1593113630400-ea4288922497?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Ceramic Coffee Mug Set',
+                29.99,
+                44.99,
+                'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Electric Gooseneck Kettle',
+                119.99,
+                149.99,
+                'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80'
+            ],
+            [
+                'Home & Kitchen',
+                'Automatic Pepper Grinder Set',
+                54.99,
+                69.99,
+                'https://images.unsplash.com/photo-1588854337236-6889d631faa8?w=600&auto=format&fit=crop&q=80'
+            ],
         ];
 
         foreach ($products as $data) {
@@ -136,8 +316,8 @@ class ProductSeeder extends Seeder
                 'price' => $data[2],
                 'compare_price' => $data[3],
                 'quantity' => rand(10, 100),
-                'image' => null,
-                'is_featured' => rand(1, 100) <= 20,
+                'image' => $data[4],
+                'is_featured' => rand(1, 100) <= 25,
             ]);
         }
 

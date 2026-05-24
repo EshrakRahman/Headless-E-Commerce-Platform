@@ -89,13 +89,39 @@ class OrderController extends Controller
                     ];
                 }
 
+                $discount = 0;
+                $couponCode = null;
+
+                if (!empty($validated['coupon_code'])) {
+                    $coupon = \App\Models\Coupon::active()
+                        ->where('code', strtoupper(trim($validated['coupon_code'])))
+                        ->first();
+
+                    if (!$coupon) {
+                        throw ValidationException::withMessages([
+                            'coupon_code' => 'The coupon code is invalid or has expired.',
+                        ]);
+                    }
+
+                    if (!$coupon->isValidForSubtotal($total)) {
+                        throw ValidationException::withMessages([
+                            'coupon_code' => "This coupon requires a minimum subtotal of $" . number_format($coupon->min_order_amount, 2) . ".",
+                        ]);
+                    }
+
+                    $discount = $coupon->calculateDiscount($total);
+                    $couponCode = $coupon->code;
+                }
+
                 $lastId = Order::max('id') ?? 0;
 
                 $order = $user->orders()->create([
                     'order_number' => 'ORD-'.now()->format('Ymd').'-'.str_pad($lastId + 1, 4, '0', STR_PAD_LEFT),
                     'status' => 'pending',
                     'subtotal' => $total,
-                    'total' => $total,
+                    'discount' => $discount,
+                    'coupon_code' => $couponCode,
+                    'total' => max(0, $total - $discount),
                     'notes' => $validated['notes'] ?? null,
                     'payment_method' => $validated['payment_method'] ?? 'stripe',
                     'payment_status' => 'pending',

@@ -35,6 +35,7 @@ class StoreOrderRequest extends FormRequest
             'billing_address.zip' => 'required_with:billing_address|string',
             'billing_address.country' => 'required_with:billing_address|string',
             'notes' => 'nullable|string',
+            'coupon_code' => 'nullable|string',
         ];
     }
 }

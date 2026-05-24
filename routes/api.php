@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\WishlistController;
+use App\Http\Controllers\Api\V1\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('orders/{order}/payment-status', [OrderController::class, 'paymentStatus'])->middleware('throttle:orders');
         Route::post('orders/{order}/confirm-payment', [OrderController::class, 'confirmPayment'])->middleware('throttle:orders');
         Route::post('cart/preview', [CartController::class, 'preview'])->middleware('throttle:orders');
+        Route::post('coupons/apply', [CouponController::class, 'apply']);
 
         Route::get('wishlist', [WishlistController::class, 'index']);
         Route::post('wishlist', [WishlistController::class, 'store']);
