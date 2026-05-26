@@ -2,13 +2,14 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BannerController;
+use App\Http\Controllers\Api\V1\BrandController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\CouponController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\WishlistController;
-use App\Http\Controllers\Api\V1\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::apiResource('products', ProductController::class);
 
     Route::apiResource('categories', CategoryController::class);
+    Route::get('brands', [BrandController::class, 'index']);
 
     Route::get('banners', [BannerController::class, 'index']);
 

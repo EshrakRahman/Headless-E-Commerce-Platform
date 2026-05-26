@@ -22,7 +22,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Product::with(['category', 'sizes', 'discounts']);
+        $query = Product::with(['category', 'brand', 'sizes', 'discounts']);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
@@ -32,8 +32,31 @@ class ProductController extends Controller
             $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
         }
 
+        if ($request->filled('brand')) {
+            $query->whereHas('brand', fn ($q) => $q->where('slug', $request->brand));
+        }
+
         if ($request->boolean('featured')) {
             $query->where('is_featured', true);
+        }
+
+        if ($request->boolean('on_sale')) {
+            $query->where(function ($q) {
+                $q->whereHas('discounts', fn ($subQuery) => $subQuery->active())
+                    ->orWhereColumn('compare_price', '>', 'price');
+            });
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->float('min_price'));
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->float('max_price'));
+        }
+
+        if ($request->filled('size')) {
+            $query->whereHas('sizes', fn ($q) => $q->where('name', $request->size));
         }
 
         if ($request->sort === 'latest') {
@@ -42,9 +65,11 @@ class ProductController extends Controller
 
         if ($request->filled('limit')) {
             $query->take($request->integer('limit'));
+
+            return ProductResource::collection($query->get());
         }
 
-        return ProductResource::collection($query->get());
+        return ProductResource::collection($query->cursorPaginate($request->integer('per_page', 20)));
     }
 
     /**
@@ -81,7 +106,7 @@ class ProductController extends Controller
      */
     public function showBySlug(string $slug): ProductResource
     {
-        $product = Product::where('slug', $slug)->with(['category', 'sizes', 'discounts'])->firstOrFail();
+        $product = Product::where('slug', $slug)->with(['category', 'brand', 'sizes', 'discounts'])->firstOrFail();
 
         return new ProductResource($product);
     }
@@ -95,7 +120,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): ProductResource
     {
-        $product->load(['category', 'sizes', 'discounts']);
+        $product->load(['category', 'brand', 'sizes', 'discounts']);
 
         return new ProductResource($product);
     }

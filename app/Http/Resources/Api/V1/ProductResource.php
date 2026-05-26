@@ -17,6 +17,7 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'category' => $this->whenLoaded('category', fn () => $this->category?->name),
+            'brand' => $this->whenLoaded('brand', fn () => $this->brand?->name),
             'slug' => $this->slug,
             'description' => $this->description,
             'price' => $this->formatPrice($this->price),
@@ -34,7 +35,7 @@ class ProductResource extends JsonResource
                 'stock' => (int) $size->pivot->stock,
             ])),
             'is_featured' => $this->is_featured,
-            'rating' => $this->when($this->relationLoaded('approvedReviews'), $this->avg_rating),
+            'rating' => $this->when($this->relationLoaded('approvedReviews'), fn () => $this->avg_rating),
             'review_count' => $this->when($this->relationLoaded('approvedReviews'), fn () => $this->approvedReviews->count()),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];

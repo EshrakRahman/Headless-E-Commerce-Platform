@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DiscountType;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'category_id', 'description', 'image', 'slug', 'price', 'compare_price', 'quantity', 'is_featured'])]
+#[Fillable(['name', 'category_id', 'brand_id', 'description', 'image', 'slug', 'price', 'compare_price', 'quantity', 'is_featured'])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
@@ -30,6 +31,11 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
     }
 
     public function sizes(): BelongsToMany
@@ -66,19 +72,28 @@ class Product extends Model
 
     public function getAvgRatingAttribute(): ?float
     {
-        $avg = $this->approvedReviews()->avg('rating');
+        $avg = $this->relationLoaded('approvedReviews')
+            ? $this->approvedReviews->avg('rating')
+            : $this->approvedReviews()->avg('rating');
 
         return $avg !== null ? round((float) $avg, 1) : null;
     }
 
     public function getSalePriceAttribute(): ?float
     {
-        $activeDiscount = $this->discounts()
-            ->active()
-            ->get()
-            ->sortByDesc(fn ($discount) => $discount->type === 'percentage'
-                ? $discount->value * $this->price / 100
-                : $discount->value
+        $now = now();
+        $discounts = $this->relationLoaded('discounts')
+            ? $this->discounts
+            : $this->discounts()->active()->get();
+
+        $activeDiscount = $discounts
+            ->filter(fn ($discount) => $discount->is_active &&
+                ($discount->starts_at === null || $discount->starts_at->lte($now)) &&
+                ($discount->ends_at === null || $discount->ends_at->gte($now))
+            )
+            ->sortByDesc(fn ($discount) => $discount->type === DiscountType::Percentage
+                ? (float) $discount->value * (float) $this->price / 100
+                : (float) $discount->value
             )
             ->first();
 
@@ -86,8 +101,8 @@ class Product extends Model
             return null;
         }
 
-        return $activeDiscount->type === 'percentage'
-            ? round($this->price * (1 - $activeDiscount->value / 100), 2)
-            : max(0, $this->price - $activeDiscount->value);
+        return $activeDiscount->type === DiscountType::Percentage
+            ? round((float) $this->price * (1 - (float) $activeDiscount->value / 100), 2)
+            : max(0, (float) $this->price - (float) $activeDiscount->value);
     }
 }
