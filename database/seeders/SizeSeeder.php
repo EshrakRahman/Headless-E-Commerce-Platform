@@ -12,7 +12,7 @@ class SizeSeeder extends Seeder
         $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
         foreach ($sizes as $name) {
-            Size::create(['name' => $name]);
+            Size::firstOrCreate(['name' => $name]);
         }
 
         $this->command->info('Created '.count($sizes).' sizes.');

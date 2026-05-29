@@ -34,7 +34,10 @@ class ProductSizeSeeder extends Seeder
                 ];
             }
 
-            Product::find($productId)->sizes()->sync($pivotData);
+            $product = Product::find($productId);
+            if ($product) {
+                $product->sizes()->sync($pivotData);
+            }
         }
 
         $this->command->info('Assigned sizes to '.$productIds->count().' products.');

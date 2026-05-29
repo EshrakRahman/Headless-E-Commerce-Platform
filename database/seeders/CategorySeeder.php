@@ -19,12 +19,18 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $data) {
-            Category::create([
-                'name' => $data['name'],
-                'slug' => Str::slug($data['name']),
-                'description' => $data['description'],
-                'is_active' => true,
-            ]);
+            $category = Category::withTrashed()->updateOrCreate(
+                ['slug' => Str::slug($data['name'])],
+                [
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                    'is_active' => true,
+                ]
+            );
+
+            if ($category->trashed()) {
+                $category->restore();
+            }
         }
 
         $this->command->info('Created '.count($categories).' categories.');

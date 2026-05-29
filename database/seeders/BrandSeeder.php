@@ -25,12 +25,14 @@ class BrandSeeder extends Seeder
         ];
 
         foreach ($brands as $data) {
-            Brand::create([
-                'name' => $data['name'],
-                'slug' => Str::slug($data['name']),
-                'description' => $data['description'],
-                'is_active' => true,
-            ]);
+            Brand::updateOrCreate(
+                ['slug' => Str::slug($data['name'])],
+                [
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                    'is_active' => true,
+                ]
+            );
         }
 
         $this->command->info('Created '.count($brands).' brands.');

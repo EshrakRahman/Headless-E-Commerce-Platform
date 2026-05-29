@@ -46,10 +46,10 @@ class DiscountSeeder extends Seeder
         ];
 
         foreach ($discounts as $data) {
-            $discount = Discount::create($data);
+            $discount = Discount::updateOrCreate(['name' => $data['name']], $data);
 
             $assigned = $products->random(min(15, $products->count()));
-            $discount->products()->attach($assigned->pluck('id'));
+            $discount->products()->sync($assigned->pluck('id'));
         }
 
         $this->command->info('Created '.count($discounts).' discounts assigned to products.');
