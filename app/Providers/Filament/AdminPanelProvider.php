@@ -49,14 +49,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Catalog')
-                    ->icon('heroicon-o-shopping-bag'),
+                    ->label('Catalog'),
                 NavigationGroup::make()
-                    ->label('Sales')
-                    ->icon('heroicon-o-credit-card'),
+                    ->label('Sales'),
                 NavigationGroup::make()
-                    ->label('Promotions')
-                    ->icon('heroicon-o-megaphone'),
+                    ->label('Promotions'),
             ])
             ->middleware([
                 EncryptCookies::class,
