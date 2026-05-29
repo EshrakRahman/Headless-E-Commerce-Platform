@@ -20,6 +20,10 @@ class BannerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Promotions';
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Banners';
 
     protected static ?string $recordTitleAttribute = 'title';

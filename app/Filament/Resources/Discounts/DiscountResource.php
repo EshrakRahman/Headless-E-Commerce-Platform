@@ -18,7 +18,11 @@ class DiscountResource extends Resource
 {
     protected static ?string $model = Discount::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptPercent;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Promotions';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Discounts';
 

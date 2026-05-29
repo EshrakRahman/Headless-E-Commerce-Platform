@@ -16,6 +16,10 @@ class ReviewResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedStar;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Sales';
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Reviews';
 
     protected static ?string $recordTitleAttribute = 'title';

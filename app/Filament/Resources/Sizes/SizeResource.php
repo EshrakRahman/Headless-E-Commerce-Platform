@@ -18,7 +18,11 @@ class SizeResource extends Resource
 {
     protected static ?string $model = Size::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'name';
 
