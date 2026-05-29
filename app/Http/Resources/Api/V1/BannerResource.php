@@ -19,8 +19,12 @@ class BannerResource extends JsonResource
             'subtitle' => $this->subtitle,
             'cta_text' => $this->cta_text,
             'cta_url' => $this->cta_url,
-            'desktop_image' => $this->desktop_image ? \Storage::disk('s3')->url($this->desktop_image) : null,
-            'mobile_image' => $this->mobile_image ? \Storage::disk('s3')->url($this->mobile_image) : null,
+            'desktop_image' => $this->desktop_image
+                ? (str_starts_with($this->desktop_image, 'http') ? $this->desktop_image : \Storage::disk('s3')->url($this->desktop_image))
+                : null,
+            'mobile_image' => $this->mobile_image
+                ? (str_starts_with($this->mobile_image, 'http') ? $this->mobile_image : \Storage::disk('s3')->url($this->mobile_image))
+                : null,
             'bg_color' => $this->bg_color,
             'text_color' => $this->text_color,
             'sort_order' => $this->sort_order,
