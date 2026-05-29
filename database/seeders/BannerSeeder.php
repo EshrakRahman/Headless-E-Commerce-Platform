@@ -46,6 +46,11 @@ class BannerSeeder extends Seeder
         ];
 
         foreach ($banners as $banner) {
+            $existing = Banner::where('title', $banner['title'])->first();
+            if ($existing && $existing->updated_at != $existing->created_at) {
+                continue;
+            }
+
             Banner::updateOrCreate(
                 ['title' => $banner['title']],
                 $banner
