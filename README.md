@@ -242,11 +242,10 @@ banners (standalone)
 A full-featured Filament v5 admin panel is available at `/admin`.
 
 <p align="center">
-  <img src="https://placehold.co/800x450/e8f5e9/2e7d32?text=Admin+Panel+Screenshot" alt="Admin Panel" width="600">
+  <img src="/storage/app/public/banners/adminpanel.png" alt="Admin Panel" width="600">
   <br>
-  <em>Screenshot coming soon</em>
+  <em>Admin Dashboard</em>
 </p>
-
 ### Resources
 
 | Resource | Features |

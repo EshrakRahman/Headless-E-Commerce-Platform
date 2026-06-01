@@ -60,7 +60,7 @@ class ProductController extends Controller
         }
 
         if ($request->sort === 'latest') {
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
 
         if ($request->filled('limit')) {
