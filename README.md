@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <strong>A headless e-commerce API built with Laravel 13 & Filament v5</strong>
+  <strong>A headless e-commerce API built with Laravel 13 & Filament v5.</strong>
 </p>
 
 <p align="center">
