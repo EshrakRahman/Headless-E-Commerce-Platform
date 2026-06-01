@@ -242,7 +242,7 @@ banners (standalone)
 A full-featured Filament v5 admin panel is available at `/admin`.
 
 <p align="center">
-  <img src="/storage/app/public/banners/adminpanel.png" alt="Admin Panel" width="600">
+  <img src="/adminpanel.png" alt="Admin Panel" width="600">
   <br>
   <em>Admin Dashboard</em>
 </p>
