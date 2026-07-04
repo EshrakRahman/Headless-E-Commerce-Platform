@@ -182,7 +182,7 @@ it('rejects order with insufficient stock', function () {
         ]);
 
     $response->assertUnprocessable()
-        ->assertJsonValidationErrors(['items.*.quantity']);
+        ->assertJsonValidationErrors(['items.0.quantity']);
 });
 
 it('rejects order with invalid size id', function () {
