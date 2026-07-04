@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Cart\PreviewCartRequest;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
@@ -14,20 +14,21 @@ class CartController extends Controller
      *
      * @tags Cart
      */
-    public function preview(Request $request): JsonResponse
+    public function preview(PreviewCartRequest $request): JsonResponse
     {
-        $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.size_id' => 'nullable|exists:sizes,id',
-            'items.*.quantity' => 'required|integer|min:1',
-        ]);
+        $validated = $request->validated();
+
+        $productIds = collect($validated['items'])->pluck('product_id')->unique()->toArray();
+
+        // Eager load sizes, batch fetching all products at once to avoid N+1
+        $products = Product::with('sizes')->findOrFail($productIds)->keyBy('id');
 
         $items = [];
         $total = 0;
 
-        foreach ($request->items as $item) {
-            $product = Product::with('sizes')->findOrFail($item['product_id']);
+        foreach ($validated['items'] as $item) {
+            /** @var Product $product */
+            $product = $products->get($item['product_id']);
             $unitPrice = $product->sale_price ?? (float) $product->price;
             $sizeName = null;
             $sizeId = null;
@@ -35,9 +36,8 @@ class CartController extends Controller
             $inStock = true;
 
             if (! empty($item['size_id'])) {
-                $size = $product->sizes()
-                    ->where('size_id', $item['size_id'])
-                    ->first();
+                // In-memory filter on the already eager-loaded sizes relation
+                $size = $product->sizes->firstWhere('id', $item['size_id']);
 
                 if ($size) {
                     $unitPrice += (float) $size->pivot->additional_price;

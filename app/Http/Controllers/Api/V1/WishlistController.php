@@ -20,7 +20,7 @@ class WishlistController extends Controller
     {
         $products = auth()->user()
             ->wishlist()
-            ->with(['category', 'sizes'])
+            ->with(['category', 'sizes', 'discounts'])
             ->get();
 
         return ProductResource::collection($products);

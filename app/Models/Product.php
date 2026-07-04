@@ -79,8 +79,16 @@ class Product extends Model
         return $avg !== null ? round((float) $avg, 1) : null;
     }
 
+    private ?float $salePriceMemoized = null;
+
+    private bool $hasMemoizedSalePrice = false;
+
     public function getSalePriceAttribute(): ?float
     {
+        if ($this->hasMemoizedSalePrice) {
+            return $this->salePriceMemoized;
+        }
+
         $now = now();
         $discounts = $this->relationLoaded('discounts')
             ? $this->discounts
@@ -97,12 +105,16 @@ class Product extends Model
             )
             ->first();
 
-        if ($activeDiscount === null) {
-            return null;
+        $price = null;
+        if ($activeDiscount !== null) {
+            $price = $activeDiscount->type === DiscountType::Percentage
+                ? round((float) $this->price * (1 - (float) $activeDiscount->value / 100), 2)
+                : max(0, (float) $this->price - (float) $activeDiscount->value);
         }
 
-        return $activeDiscount->type === DiscountType::Percentage
-            ? round((float) $this->price * (1 - (float) $activeDiscount->value / 100), 2)
-            : max(0, (float) $this->price - (float) $activeDiscount->value);
+        $this->salePriceMemoized = $price;
+        $this->hasMemoizedSalePrice = true;
+
+        return $price;
     }
 }
