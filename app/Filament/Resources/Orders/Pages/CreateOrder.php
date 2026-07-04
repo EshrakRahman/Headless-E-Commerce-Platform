@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Orders\Pages;
 
+use App\DTOs\OrderData;
+use App\DTOs\OrderItemData;
 use App\Filament\Resources\Orders\OrderResource;
-use App\Models\Order;
 use App\Models\Product;
-use App\Models\ProductSize;
-use App\Services\InventoryService;
+use App\Models\User;
+use App\Services\OrderService;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -14,13 +15,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\Model;
 
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
-
-    protected array $calculatedItemsData = [];
 
     public function form(Schema $schema): Schema
     {
@@ -93,86 +92,24 @@ class CreateOrder extends CreateRecord
             ]);
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-        $itemsData = [];
-        $total = 0;
+        $user = User::findOrFail($data['user_id']);
 
-        foreach ($data['items'] as $item) {
-            $product = Product::with('sizes')->findOrFail($item['product_id']);
-            $unitPrice = (float) $product->price;
-            $sizeName = null;
+        $items = array_map(
+            fn (array $item): OrderItemData => OrderItemData::fromArray($item),
+            $data['items']
+        );
 
-            if (! empty($item['size_id'])) {
-                $size = $product->sizes()
-                    ->where('size_id', $item['size_id'])
-                    ->first();
+        $orderData = new OrderData(
+            items: $items,
+            shippingAddress: null,
+            billingAddress: null,
+            notes: $data['notes'] ?? null,
+            couponCode: null,
+            paymentMethod: 'cash'
+        );
 
-                if (! $size) {
-                    throw ValidationException::withMessages([
-                        'items.*.size_id' => "Size is not available for product '{$product->name}'.",
-                    ]);
-                }
-
-                /** @var ProductSize $pivot */
-                $pivot = $size->pivot;
-
-                if ($pivot->stock < $item['quantity']) {
-                    throw ValidationException::withMessages([
-                        'items.*.quantity' => "Not enough stock for {$product->name} - {$size->name}. Available: {$pivot->stock}.",
-                    ]);
-                }
-
-                $unitPrice += (float) $pivot->additional_price;
-                $sizeName = $size->name;
-            } else {
-                if ($product->quantity < $item['quantity']) {
-                    throw ValidationException::withMessages([
-                        'items.*.quantity' => "Not enough stock for '{$product->name}'. Available: {$product->quantity}.",
-                    ]);
-                }
-            }
-
-            $subtotal = $unitPrice * $item['quantity'];
-            $total += $subtotal;
-
-            $itemsData[] = [
-                'product_id' => $product->id,
-                'size_id' => $item['size_id'] ?? null,
-                'product_name' => $product->name,
-                'size_name' => $sizeName,
-                'unit_price' => $unitPrice,
-                'quantity' => $item['quantity'],
-                'subtotal' => $subtotal,
-            ];
-        }
-
-        $this->calculatedItemsData = $itemsData;
-
-        $lastId = Order::max('id') ?? 0;
-
-        unset($data['items']);
-
-        $data['order_number'] = 'ORD-'.now()->format('Ymd').'-'.str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
-        $data['status'] = 'pending';
-        $data['subtotal'] = $total;
-        $data['shipping_cost'] = 0;
-        $data['discount'] = 0;
-        $data['total'] = $total;
-        $data['payment_method'] = null;
-        $data['payment_status'] = 'pending';
-        $data['shipping_address'] = null;
-        $data['billing_address'] = null;
-
-        return $data;
-    }
-
-    protected function afterCreate(): void
-    {
-        $this->record->items()->createMany($this->calculatedItemsData);
-
-        $this->record->load('items');
-
-        app(InventoryService::class)->reserveForOrder($this->record);
+        return app(OrderService::class)->createOrder($user, $orderData);
     }
 }

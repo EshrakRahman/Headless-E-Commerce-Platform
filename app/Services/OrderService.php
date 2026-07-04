@@ -144,22 +144,24 @@ class OrderService
         });
 
         // 2. Stripe integration executes outside of database transactions
-        try {
-            $intent = $this->paymentService->createIntent($order);
+        if ($orderData->paymentMethod === 'stripe') {
+            try {
+                $intent = $this->paymentService->createIntent($order);
 
-            $order->update([
-                'payment_intent_id' => $intent['payment_intent_id'],
-            ]);
+                $order->update([
+                    'payment_intent_id' => $intent['payment_intent_id'],
+                ]);
 
-            $order->payment_intent_client_secret = $intent['client_secret'];
-        } catch (\Throwable $e) {
-            $order->update([
-                'payment_status' => 'failed',
-            ]);
+                $order->payment_intent_client_secret = $intent['client_secret'];
+            } catch (\Throwable $e) {
+                $order->update([
+                    'payment_status' => 'failed',
+                ]);
 
-            throw ValidationException::withMessages([
-                'payment' => 'Payment processing failed. Please try again.',
-            ]);
+                throw ValidationException::withMessages([
+                    'payment' => 'Payment processing failed. Please try again.',
+                ]);
+            }
         }
 
         $order->load('items');

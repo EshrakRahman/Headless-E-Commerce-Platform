@@ -10,12 +10,12 @@ class OrderData
      * Create a new OrderData instance.
      *
      * @param  OrderItemData[]  $items
-     * @param  array<string, mixed>  $shippingAddress
+     * @param  array<string, mixed>|null  $shippingAddress
      * @param  array<string, mixed>|null  $billingAddress
      */
     public function __construct(
         public array $items,
-        public array $shippingAddress,
+        public ?array $shippingAddress = null,
         public ?array $billingAddress = null,
         public ?string $notes = null,
         public ?string $couponCode = null,
