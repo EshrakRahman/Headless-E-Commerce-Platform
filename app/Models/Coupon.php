@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use App\Enums\DiscountType;
+use App\Enums\OrderStatus;
+use Database\Factories\CouponFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Coupon extends Model
 {
+    /** @use HasFactory<CouponFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'code',
         'type',
@@ -16,6 +22,8 @@ class Coupon extends Model
         'ends_at',
         'is_active',
         'description',
+        'usage_limit',
+        'usage_limit_per_user',
     ];
 
     protected function casts(): array
@@ -27,6 +35,8 @@ class Coupon extends Model
             'is_active' => 'boolean',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
+            'usage_limit' => 'integer',
+            'usage_limit_per_user' => 'integer',
         ];
     }
 
@@ -46,6 +56,7 @@ class Coupon extends Model
         if ($this->min_order_amount !== null && $subtotal < (float) $this->min_order_amount) {
             return false;
         }
+
         return true;
     }
 
@@ -55,5 +66,32 @@ class Coupon extends Model
             DiscountType::Percentage => round($subtotal * ((float) $this->value / 100), 2),
             DiscountType::Fixed => min($subtotal, (float) $this->value),
         };
+    }
+
+    public function isUsedUp(): bool
+    {
+        if ($this->usage_limit === null) {
+            return false;
+        }
+
+        $usedCount = Order::where('coupon_code', $this->code)
+            ->where('status', '!=', OrderStatus::Cancelled->value)
+            ->count();
+
+        return $usedCount >= $this->usage_limit;
+    }
+
+    public function isUsedUpForUser(?User $user): bool
+    {
+        if ($this->usage_limit_per_user === null || $user === null) {
+            return false;
+        }
+
+        $usedCount = Order::where('coupon_code', $this->code)
+            ->where('user_id', $user->id)
+            ->where('status', '!=', OrderStatus::Cancelled->value)
+            ->count();
+
+        return $usedCount >= $this->usage_limit_per_user;
     }
 }

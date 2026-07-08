@@ -95,11 +95,24 @@ class OrderService
             if (! empty($orderData->couponCode)) {
                 $coupon = Coupon::active()
                     ->where('code', strtoupper(trim($orderData->couponCode)))
+                    ->lockForUpdate()
                     ->first();
 
                 if (! $coupon) {
                     throw ValidationException::withMessages([
                         'coupon_code' => 'The coupon code is invalid or has expired.',
+                    ]);
+                }
+
+                if ($coupon->isUsedUp()) {
+                    throw ValidationException::withMessages([
+                        'coupon_code' => 'This coupon has reached its usage limit.',
+                    ]);
+                }
+
+                if ($coupon->isUsedUpForUser($user)) {
+                    throw ValidationException::withMessages([
+                        'coupon_code' => 'You have already used this coupon the maximum number of times.',
                     ]);
                 }
 

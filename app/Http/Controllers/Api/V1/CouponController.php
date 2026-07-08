@@ -18,15 +18,27 @@ class CouponController extends Controller
 
         $coupon = Coupon::active()->where('code', $code)->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             throw ValidationException::withMessages([
                 'code' => 'The coupon code is invalid or has expired.',
             ]);
         }
 
-        if (!$coupon->isValidForSubtotal($subtotal)) {
+        if ($coupon->isUsedUp()) {
             throw ValidationException::withMessages([
-                'code' => "This coupon requires a minimum subtotal of $" . number_format($coupon->min_order_amount, 2) . ".",
+                'code' => 'This coupon has reached its usage limit.',
+            ]);
+        }
+
+        if ($coupon->isUsedUpForUser($request->user())) {
+            throw ValidationException::withMessages([
+                'code' => 'You have already used this coupon the maximum number of times.',
+            ]);
+        }
+
+        if (! $coupon->isValidForSubtotal($subtotal)) {
+            throw ValidationException::withMessages([
+                'code' => 'This coupon requires a minimum subtotal of $'.number_format($coupon->min_order_amount, 2).'.',
             ]);
         }
 
