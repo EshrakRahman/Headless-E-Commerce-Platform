@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\Reviews\Tables;
 
 use App\Models\Review;
-use Filament\Actions\ActionGroup;
-use Filament\Support\Icons\Heroicon;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
@@ -43,6 +44,10 @@ class ReviewsTable
                 IconColumn::make('is_approved')
                     ->label('Approved')
                     ->boolean()
+                    ->sortable(),
+
+                ToggleColumn::make('is_featured')
+                    ->label('Featured')
                     ->sortable(),
 
                 TextColumn::make('created_at')

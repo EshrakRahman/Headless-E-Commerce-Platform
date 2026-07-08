@@ -8,9 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'product_id', 'rating', 'title', 'body', 'is_approved'])]
+#[Fillable(['user_id', 'product_id', 'rating', 'title', 'body', 'is_approved', 'is_featured'])]
 class Review extends Model
 {
     /** @use HasFactory<ReviewFactory> */
@@ -21,6 +20,7 @@ class Review extends Model
         return [
             'rating' => 'integer',
             'is_approved' => 'boolean',
+            'is_featured' => 'boolean',
         ];
     }
 
@@ -37,5 +37,10 @@ class Review extends Model
     public function scopeApproved(Builder $query): Builder
     {
         return $query->where('is_approved', true);
+    }
+
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_featured', true);
     }
 }

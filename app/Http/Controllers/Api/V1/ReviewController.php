@@ -13,9 +13,33 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class ReviewController extends Controller
 {
     /**
+     * List selected featured/best reviews.
+     *
+     * @tags Reviews
+     *
+     * @unauthenticated
+     */
+    public function featured(): AnonymousResourceCollection
+    {
+        $limit = request()->integer('limit', 6);
+        $limit = max(1, min($limit, 20));
+
+        $reviews = Review::query()
+            ->with(['user', 'product'])
+            ->approved()
+            ->featured()
+            ->latest()
+            ->take($limit)
+            ->get();
+
+        return ReviewResource::collection($reviews);
+    }
+
+    /**
      * List approved reviews for a product.
      *
      * @tags Reviews
+     *
      * @unauthenticated
      */
     public function index(Product $product): JsonResponse

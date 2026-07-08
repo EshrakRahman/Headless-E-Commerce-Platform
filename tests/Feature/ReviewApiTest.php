@@ -182,3 +182,87 @@ it('requires authentication for my reviews', function () {
 
     $response->assertUnauthorized();
 });
+
+// ─── Featured Reviews ───────────────────────────────────────────────
+
+it('lists approved featured reviews', function () {
+    $product1 = Product::factory()->create();
+    $product2 = Product::factory()->create();
+    $user = User::factory()->create();
+
+    // Approved + Featured
+    Review::factory()->create([
+        'user_id' => $user->id,
+        'product_id' => $product1->id,
+        'is_approved' => true,
+        'is_featured' => true,
+        'title' => 'Featured Review 1',
+    ]);
+
+    // Approved but NOT Featured
+    Review::factory()->create([
+        'user_id' => User::factory()->create()->id,
+        'product_id' => $product2->id,
+        'is_approved' => true,
+        'is_featured' => false,
+        'title' => 'Regular Approved Review',
+    ]);
+
+    // Featured but NOT Approved
+    Review::factory()->create([
+        'user_id' => User::factory()->create()->id,
+        'product_id' => $product1->id,
+        'is_approved' => false,
+        'is_featured' => true,
+        'title' => 'Pending Featured Review',
+    ]);
+
+    $response = $this->getJson('/api/v1/reviews/featured');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.title', 'Featured Review 1')
+        ->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'user_name',
+                    'product_id',
+                    'product' => [
+                        'id',
+                        'name',
+                        'slug',
+                        'image',
+                    ],
+                    'rating',
+                    'title',
+                    'body',
+                    'is_approved',
+                    'is_featured',
+                    'created_at',
+                ],
+            ],
+        ]);
+});
+
+it('limits the number of featured reviews returned', function () {
+    $product = Product::factory()->create();
+
+    // Create 10 approved, featured reviews
+    for ($i = 0; $i < 10; $i++) {
+        Review::factory()->create([
+            'user_id' => User::factory()->create()->id,
+            'product_id' => $product->id,
+            'is_approved' => true,
+            'is_featured' => true,
+        ]);
+    }
+
+    $response = $this->getJson('/api/v1/reviews/featured?limit=3');
+    $response->assertSuccessful()
+        ->assertJsonCount(3, 'data');
+
+    $responseDefault = $this->getJson('/api/v1/reviews/featured');
+    $responseDefault->assertSuccessful()
+        ->assertJsonCount(6, 'data'); // default limit is 6
+});

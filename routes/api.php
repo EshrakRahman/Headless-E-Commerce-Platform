@@ -33,6 +33,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
     Route::get('banners', [BannerController::class, 'index']);
 
+    Route::get('reviews/featured', [ReviewController::class, 'featured']);
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('orders', [OrderController::class, 'index'])->middleware('throttle:orders');
         Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:orders');
