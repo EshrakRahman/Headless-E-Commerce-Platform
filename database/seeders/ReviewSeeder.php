@@ -77,29 +77,48 @@ class ReviewSeeder extends Seeder
             );
         }
 
-        // Seed some regular (non-featured, but approved) reviews for general variety
-        foreach ($products->take(10) as $product) {
+        // Seed some regular (non-featured, but approved) reviews for general variety using static content
+        // to avoid dependency on Faker (which is dev-only and absent in production --no-dev environments).
+        $regularReviewsData = [
+            ['rating' => 4, 'title' => 'Pretty good', 'body' => 'Works well, but setup took a bit longer than expected.'],
+            ['rating' => 5, 'title' => 'Love it!', 'body' => 'Exceeded my expectations. Great customer support too.'],
+            ['rating' => 3, 'title' => 'Average', 'body' => 'Decent product, but there are better options out there for the price.'],
+            ['rating' => 5, 'title' => 'Superb', 'body' => 'High quality material, very durable. Highly recommended.'],
+            ['rating' => 4, 'title' => 'Satisfied customer', 'body' => 'Exactly as described. Shipping was very fast.'],
+            ['rating' => 2, 'title' => 'Disappointed', 'body' => 'Did not work as advertised. Will be returning it.'],
+            ['rating' => 5, 'title' => 'Perfect fit', 'body' => 'Sizing was exactly correct. Very comfortable.'],
+            ['rating' => 4, 'title' => 'Solid product', 'body' => 'Good value for the price. I would buy it again.'],
+        ];
+
+        foreach ($products->take(10) as $prodIndex => $product) {
             $availableUsers = $users->filter(fn ($u) => ! Review::where('user_id', $u->id)->where('product_id', $product->id)->exists());
             if ($availableUsers->isEmpty()) {
                 continue;
             }
 
-            $count = fake()->numberBetween(1, 2);
-            for ($i = 0; $i < $count; $i++) {
+            // Seed up to 2 regular reviews per product using the static regular reviews array
+            for ($i = 0; $i < 2; $i++) {
                 if ($availableUsers->isEmpty()) {
                     break;
                 }
                 $user = $availableUsers->random();
-                // Remove from collection to prevent duplicate review in the loop
                 $availableUsers = $availableUsers->reject(fn ($u) => $u->id === $user->id);
 
-                Review::factory()
-                    ->approved()
-                    ->create([
+                $reviewItem = $regularReviewsData[($prodIndex + $i) % count($regularReviewsData)];
+
+                Review::updateOrCreate(
+                    [
                         'user_id' => $user->id,
                         'product_id' => $product->id,
+                    ],
+                    [
+                        'rating' => $reviewItem['rating'],
+                        'title' => $reviewItem['title'],
+                        'body' => $reviewItem['body'],
+                        'is_approved' => true,
                         'is_featured' => false,
-                    ]);
+                    ]
+                );
             }
         }
     }
